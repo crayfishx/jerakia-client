@@ -51,11 +51,11 @@ client = Jerakia::Client.new(opts)
 
 Options can be given as a hash of:
 
-`host`: Hostname or IP to connect to (default localhost)
-`port`: Port to connect to (default 9843)
-`api`: The Jerakia Server API version impemented on the server (default v1)
-`proto`: The protocol to use, `http` or `https` are supported, `http` is the default.
-`token`: The authentication token to use in the request,  if no token is specified jerakia-client will look for a `jerakia.yaml` file in `/etc/jerakia` and `~/.jerakia` for a key called `client_token`
+* `host`: Hostname or IP to connect to (default localhost)
+* `port`: Port to connect to (default 9843)
+* `api`: The Jerakia Server API version impemented on the server (default v1)
+* `proto`: The protocol to use, `http` or `https` are supported, `http` is the default.
+* `token`: The authentication token to use in the request,  if no token is specified jerakia-client will look for a `jerakia.yaml` file in `/etc/jerakia` and `~/.jerakia` for a key called `client_token`
 
 
 #### Instance methods
