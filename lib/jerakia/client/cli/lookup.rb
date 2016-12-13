@@ -94,7 +94,6 @@ class Jerakia
                 :scope_options => options[:scope_options],
                 :use_schema    => options[:schema] 
               }
-
               response = client.lookup(key, lookup_opts)
               answer = response['payload']
               case options[:output]

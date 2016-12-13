@@ -10,7 +10,6 @@ class Jerakia
           ]. each do |file|
             if File.exists?(file)
               config = YAML.load(File.read(file))
-              puts config
               return config['client_token'] if config['client_token']
             end
           end

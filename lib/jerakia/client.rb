@@ -2,6 +2,7 @@ require 'rest-client'
 require 'jerakia/client/error'
 require 'jerakia/client/version'
 require 'jerakia/client/lookup'
+require 'jerakia/client/scope'
 require 'jerakia/client/token'
 require 'uri'
 require 'json'
@@ -9,6 +10,8 @@ require 'json'
 class Jerakia
   class Client
     include Jerakia::Client::Lookup
+    include Jerakia::Client::Scope
+
     attr_reader :config
     def initialize(opts={})
       @config = default_config.merge(
@@ -41,11 +44,11 @@ class Jerakia
     end
 
     def url_address
-      @config[:proto] + '://' + @config[:host] + ":" + @config[:port]
+      "#{@config[:proto]}://#{@config[:host]}:#{@config[:port]}"
     end
 
 
-    def get(url_path, params)
+    def get(url_path, params={})
       headers = { 'X-Authentication' => token }
       uri_params = '?' + URI.encode_www_form(params)
       url = url_address + url_path + uri_params
@@ -57,6 +60,16 @@ class Jerakia
       return JSON.parse(response.body)
     end
 
+    def put(url_path, params)
+      headers = { 'X-Authentication' => token }
+      url = url_address + url_path
+      begin
+        response = RestClient.put(url, params.to_json, headers)
+      rescue RestClient::Unauthorized => e
+        raise Jerakia::Client::AuthorizationError, "Request not authorized"
+      end
+      return JSON.parse(response.body)
+    end
   end
 end
 
