@@ -48,6 +48,11 @@ class Jerakia
                    type: :string,
                    default: 'first',
                    desc: 'Lookup type'
+            option :metadata,
+                   aliases: :m,
+                   type: :hash,
+                   default: {},
+                   desc: 'Metadata to send with the request'
             option :scope,
                    aliases: :s,
                    type: :string,
@@ -55,6 +60,7 @@ class Jerakia
                    default: 'metadata'
             option :scope_options,
                    type: :hash,
+                   default: {},
                    desc: 'Key/value pairs to be passed to the scope handler'
             option :merge_type,
                    aliases: :m,
@@ -89,11 +95,22 @@ class Jerakia
                 :policy        => options[:policy].to_sym,
                 :lookup_type   => options[:type].to_sym,
                 :merge         => options[:merge_type].to_sym,
-                :metadata      => options[:metadata] || {},
                 :scope         => options[:scope].to_sym,
-                :scope_options => options[:scope_options],
                 :use_schema    => options[:schema] 
               }
+
+              if options[:metadata]
+                options[:metadata].each do |k,v|
+                  lookup_opts["metadata_#{k}".to_sym] = v
+                end
+              end
+
+              if options[:scope]
+                options[:scope_options].each do |k,v|
+                  lookup_opts["scope_#{k}".to_sym] = v
+                end
+              end
+
               response = client.lookup(key, lookup_opts)
               answer = response['payload']
               case options[:output]

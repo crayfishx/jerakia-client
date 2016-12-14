@@ -61,7 +61,10 @@ class Jerakia
     end
 
     def put(url_path, params)
-      headers = { 'X-Authentication' => token }
+      headers = { 
+        'X-Authentication' => token,
+        :content_type => :json
+      }
       url = url_address + url_path
       begin
         response = RestClient.put(url, params.to_json, headers)
