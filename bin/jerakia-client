@@ -1,8 +1,16 @@
 #!/usr/bin/env ruby
+#
+require 'json'
 
 lib = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'jerakia/client/cli'
 
-Jerakia::Client::CLI.start(ARGV)
+begin
+  Jerakia::Client::CLI.start(ARGV)
+rescue Jerakia::Client::Error => e
+  puts "Error: #{JSON.parse(e.message)['message']}"
+  exit(1)
+end
+

@@ -54,8 +54,11 @@ class Jerakia
       url = url_address + url_path + uri_params
       begin
         response = RestClient.get(url, headers)
+
       rescue RestClient::Unauthorized => e
         raise Jerakia::Client::AuthorizationError, "Request not authorized"
+      rescue RestClient::Exception => e
+        raise Jerakia::Client::Error, e.response.body
       end
       return JSON.parse(response.body)
     end
