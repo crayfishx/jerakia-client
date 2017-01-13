@@ -96,7 +96,7 @@ class Jerakia
                 :lookup_type   => options[:type].to_sym,
                 :merge         => options[:merge_type].to_sym,
                 :scope         => options[:scope].to_sym,
-                :use_schema    => options[:schema] 
+                :use_schema    => options[:schema]
               }
 
               if options[:metadata]

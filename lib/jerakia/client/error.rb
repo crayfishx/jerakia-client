@@ -5,5 +5,11 @@ class Jerakia
 
     class AuthorizationError < RuntimeError
     end
+
+    class NotFoundError < RuntimeError
+    end
+
+    class HTTPError < RuntimeError
+    end
   end
 end

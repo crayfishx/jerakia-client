@@ -14,13 +14,40 @@ class Jerakia
 
     attr_reader :config
     def initialize(opts={})
+      config_file_opts = self.class.load_config_from_file
       @config = default_config.merge(
-        opts.reject { |k,v| v.nil? }
+        config_file_opts.merge(
+          opts.reject { |k,v| v.nil? }
+        )
       )
       @token = nil
     end
 
-    def default_config 
+    def self.config_file
+      [
+        File.join(ENV['HOME'], '.jerakia', 'jerakia.yaml'),
+        '/etc/jerakia/jerakia.yaml'
+      ]. each do |filename|
+        return filename if File.exists?(filename)
+      end
+      return nil
+    end
+
+    def self.load_config_from_file
+      filename = config_file
+      confighash = {}
+      return {} unless filename
+      configdata = YAML.load(File.read(filename))
+      if configdata['client'].is_a?(Hash)
+        configdata['client'].each do |k, v|
+          confighash[k.to_sym] = v
+        end
+        return confighash
+      end
+      return {}
+    end
+
+    def default_config
       {
       :host => 'localhost',
       :port => 9843,
@@ -37,8 +64,7 @@ class Jerakia
     end
 
     def token
-      @token ||= @config[:token] 
-      @token ||= Jerakia::Client::Token.load_from_file
+      @token ||= @config[:token]
       raise Jerakia::Client::Error, "No authorization token available" if @token.nil?
       @token
     end
@@ -57,6 +83,8 @@ class Jerakia
 
       rescue RestClient::Unauthorized => e
         raise Jerakia::Client::AuthorizationError, "Request not authorized"
+      rescue RestClient::NotFound => e
+        return nil
       rescue RestClient::Exception => e
         raise Jerakia::Client::Error, e.response.body
       end
@@ -64,7 +92,7 @@ class Jerakia
     end
 
     def put(url_path, params)
-      headers = { 
+      headers = {
         'X-Authentication' => token,
         :content_type => :json
       }
