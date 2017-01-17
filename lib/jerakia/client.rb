@@ -64,7 +64,8 @@ class Jerakia
     end
 
     def token
-      @token ||= @config[:token]
+      jerakia_token = ENV['JERAKIA_TOKEN'] || @config[:token]
+      @token ||= jerakia_token
       raise Jerakia::Client::Error, "No authorization token available" if @token.nil?
       @token
     end
