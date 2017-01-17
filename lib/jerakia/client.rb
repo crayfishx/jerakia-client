@@ -84,7 +84,7 @@ class Jerakia
 
       rescue RestClient::Unauthorized => e
         raise Jerakia::Client::AuthorizationError, "Request not authorized"
-      rescue RestClient::NotFound => e
+      rescue RestClient::ResourceNotFound => e
         return nil
       rescue RestClient::Exception => e
         raise Jerakia::Client::Error, e.response.body
