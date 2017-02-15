@@ -1,4 +1,3 @@
-require 'rest-client'
 require 'jerakia/client/error'
 require 'jerakia/client/version'
 require 'jerakia/client/lookup'
@@ -6,6 +5,7 @@ require 'jerakia/client/scope'
 require 'jerakia/client/token'
 require 'uri'
 require 'json'
+require 'net/http'
 
 class Jerakia
   class Client
@@ -74,36 +74,36 @@ class Jerakia
       "#{@config[:proto]}://#{@config[:host]}:#{@config[:port]}"
     end
 
+    def http_send(request)
+      request.add_field("X-Authentication",  token)
+      response = Net::HTTP.new(@config[:host], @config[:port]).start do |http|
+        http.request(request)
+      end
+
+      case response.code
+      when "200"
+        return JSON.parse(response.body)
+      when "401"
+        raise Jerakia::Client::AuthorizationError, "Request not authorized"
+      else
+        raise Jerakia::Client::Error, response.body
+      end
+    end
+
 
     def get(url_path, params={})
-      headers = { 'X-Authentication' => token }
-      uri_params = '?' + URI.encode_www_form(params)
-      url = url_address + url_path + uri_params
-      begin
-        response = RestClient.get(url, headers)
-
-      rescue RestClient::Unauthorized => e
-        raise Jerakia::Client::AuthorizationError, "Request not authorized"
-      rescue RestClient::ResourceNotFound => e
-        return nil
-      rescue RestClient::Exception => e
-        raise Jerakia::Client::Error, e.response.body
-      end
-      return JSON.parse(response.body)
+      uri = URI.parse(url_address +  url_path)
+      uri.query = URI.encode_www_form(params)
+      request = Net::HTTP::Get.new(uri.to_s)
+      return http_send(request)
     end
 
     def put(url_path, params)
-      headers = {
-        'X-Authentication' => token,
-        :content_type => :json
-      }
-      url = url_address + url_path
-      begin
-        response = RestClient.put(url, params.to_json, headers)
-      rescue RestClient::Unauthorized => e
-        raise Jerakia::Client::AuthorizationError, "Request not authorized"
-      end
-      return JSON.parse(response.body)
+      uri = URI.parse(url_address + url_path)
+      request = Net::HTTP::Put.new(uri.path)
+      request.add_field('Content-Type', 'application/json')
+      request.body = params.to_json
+      return http_send(request)
     end
   end
 end
