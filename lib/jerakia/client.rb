@@ -85,6 +85,9 @@ class Jerakia
         return JSON.parse(response.body)
       when "401"
         raise Jerakia::Client::AuthorizationError, "Request not authorized"
+      when "501"
+        raise Jerakia::Client::ScopeNotFoundError, "Scope data not found" if response.body =~ /No scope data found/
+        raise Jerakia::Client::Error, response.body
       else
         raise Jerakia::Client::Error, response.body
       end

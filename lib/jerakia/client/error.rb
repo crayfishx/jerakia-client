@@ -11,5 +11,8 @@ class Jerakia
 
     class HTTPError < RuntimeError
     end
+
+    class ScopeNotFoundError < RuntimeError
+    end
   end
 end
