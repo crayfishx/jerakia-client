@@ -1,3 +1,8 @@
+
+### 0.5.2
+
+* Fixed error with earlier versions of Puppetserver that unset the HOME environment variable, this caused jerakia-client to throw an error when searching for configuration files.
+
 ### 0.5.1
 
 * Removed gem dependency for rest-client
