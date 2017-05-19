@@ -25,7 +25,7 @@ class Jerakia
 
     def self.config_file
       [
-        File.join(ENV['HOME'], '.jerakia', 'jerakia.yaml'),
+        File.join(ENV['HOME'] || '', '.jerakia', 'jerakia.yaml'),
         '/etc/jerakia/jerakia.yaml'
       ]. each do |filename|
         return filename if File.exists?(filename)
