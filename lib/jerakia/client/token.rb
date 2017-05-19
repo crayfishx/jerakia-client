@@ -5,7 +5,7 @@ class Jerakia
       class << self
         def load_from_file
           [
-            File.join(ENV['HOME'], ".jerakia", "jerakia.yaml"),
+            File.join(ENV['HOME'] || '', ".jerakia", "jerakia.yaml"),
             "/etc/jerakia/jerakia.yaml",
           ]. each do |file|
             if File.exists?(file)
