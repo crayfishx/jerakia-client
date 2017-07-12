@@ -1,4 +1,8 @@
 
+### 0.5.3
+
+* Bugfix: previously, nested namespaces were being sent twice in the URL as different fields rather than slash delimited as per the API docs.
+
 ### 0.5.2
 
 * Fixed error with earlier versions of Puppetserver that unset the HOME environment variable, this caused jerakia-client to throw an error when searching for configuration files.
