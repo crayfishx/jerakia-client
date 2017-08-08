@@ -1,5 +1,6 @@
 require 'json'
 require 'yaml'
+require 'msgpack'
 
 class Jerakia
   class Client
@@ -80,7 +81,7 @@ class Jerakia
                    aliases: :o,
                    type: :string,
                    default: 'json',
-                   desc: 'Output format, yaml or json'
+                   desc: 'Output format, yaml, json or msgpack'
 
             def lookup(key)
               client = Jerakia::Client.new({
@@ -118,6 +119,8 @@ class Jerakia
                 puts answer.to_json
               when 'yaml'
                 puts answer.to_yaml
+              when 'msgpack'
+                puts answer.to_msgpack
               else
                 raise Jerakia::Client::Error, "Unknown output type #{options[:output]}"
               end

@@ -6,6 +6,7 @@ require 'jerakia/client/token'
 require 'uri'
 require 'json'
 require 'net/http'
+require 'msgpack'
 
 class Jerakia
   class Client
@@ -53,6 +54,7 @@ class Jerakia
       :port => 9843,
       :api  => 'v1',
       :proto => 'http',
+      :content_type => 'json',
       }
     end
 
@@ -82,7 +84,11 @@ class Jerakia
 
       case response.code
       when "200"
-        return JSON.parse(response.body)
+        if not @config.key?(:content_type) or @config[:content_type] == 'json'
+          return JSON.parse(response.body)
+        else @config[:content_type] == 'msgpack'
+          return MessagePack.unpack(response.body)
+        end
       when "401"
         raise Jerakia::Client::AuthorizationError, "Request not authorized"
       when "501"
@@ -93,22 +99,31 @@ class Jerakia
       end
     end
 
+    def set_content_type(request)
+      if not @config.key?(:content_type) or @config[:content_type] == 'json'
+        request.add_field('Content-Type', 'application/json')
+        content_method = 'to_json'
+      else @config[:content_type] == 'msgpack'
+        request.add_field('Content-Type', 'application/x-msgpack')
+        content_method = 'to_msgpack'
+      end
+      return request
+    end
 
     def get(url_path, params={})
       uri = URI.parse(url_address +  url_path)
       uri.query = URI.encode_www_form(params)
       request = Net::HTTP::Get.new(uri.to_s)
+      request = set_content_type(request)
       return http_send(request)
     end
 
     def put(url_path, params)
       uri = URI.parse(url_address + url_path)
       request = Net::HTTP::Put.new(uri.path)
-      request.add_field('Content-Type', 'application/json')
-      request.body = params.to_json
+      request = set_content_type(request)
+      request.body = params.method(@method_name).call
       return http_send(request)
     end
   end
 end
-
-
