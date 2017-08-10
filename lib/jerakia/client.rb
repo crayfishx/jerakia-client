@@ -99,13 +99,20 @@ class Jerakia
       end
     end
 
-    def set_content_type(request)
+    def encode_request(request)
       if not @config.key?(:content_type) or @config[:content_type] == 'json'
         request.add_field('Content-Type', 'application/json')
-        content_method = 'to_json'
-      else @config[:content_type] == 'msgpack'
+        if request.key?('body')
+          request.body.to_json
+        end
+      elsif @config[:content_type] == 'msgpack'
         request.add_field('Content-Type', 'application/x-msgpack')
-        content_method = 'to_msgpack'
+        if request.key?('body')
+          request.body.to_msgpack
+        end
+      else
+        STDERR.puts("Invalid setting \"#{@config[:content_type]}\" for \":content_type\" in config - supported is either json or msgpack.")
+        exit(false)
       end
       return request
     end
@@ -114,7 +121,7 @@ class Jerakia
       uri = URI.parse(url_address +  url_path)
       uri.query = URI.encode_www_form(params)
       request = Net::HTTP::Get.new(uri.to_s)
-      request = set_content_type(request)
+      request = encode_request(request)
       return http_send(request)
     end
 
@@ -122,7 +129,8 @@ class Jerakia
       uri = URI.parse(url_address + url_path)
       request = Net::HTTP::Put.new(uri.path)
       request = set_content_type(request)
-      request.body = params.method(@method_name).call
+      request.body = params
+      request = encode_request(request)
       return http_send(request)
     end
   end
