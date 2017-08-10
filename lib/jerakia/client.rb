@@ -111,7 +111,7 @@ class Jerakia
           request.body.to_msgpack
         end
       else
-        STDERR.puts("Invalid setting \"#{@config[:content_type]}\" for \":content_type\" in config - supported is either json or msgpack.")
+        raise Jerakia::Client::Error, "Invalid setting \"#{@config[:content_type]}\" for \":content_type\" in config - supported is either json or msgpack."
         exit(false)
       end
       return request
