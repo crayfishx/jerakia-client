@@ -33,10 +33,26 @@ Options:
                                    # Default: array
   v, [--verbose], [--no-verbose]   # Print verbose information
   D, [--debug], [--no-debug]       # Debug information to console, implies --log-level debug
-  o, [--output=OUTPUT]             # Output format, yaml or json
+  o, [--output=OUTPUT]             # Output format, yaml, json or msgpack
+                                   # Default: json
+  c, [--content_type=TYPE]         # Content type, json or msgpack
                                    # Default: json
 
 Lookup [KEY] with Jerakia
+```
+
+It is possible to set some of the global settings in the `jerakia.yaml` config file:
+
+```
+$ cat ~/.jerakia/jerakia.yaml
+---
+client:
+  token: 'test:bcb4ed451b890d62b7784058ecf75e225c490eef62073a3089f1cbd9db50f9034630b33c7ca06b80'
+  host: 'localhost'
+  port: 9992
+  api: 'v1'
+  proto: 'http'
+  content_type: 'msgpack'
 ```
 
 ### Ruby bindings

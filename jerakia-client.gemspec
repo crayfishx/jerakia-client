@@ -14,4 +14,5 @@ Gem::Specification.new do |s|
   s.homepage    = 'http://jerakia.io'
   s.license     = 'Apache 2.0'
   s.add_dependency 'thor', '~> 0.19'
+  s.add_dependency 'msgpack', '~> 1.1'
 end

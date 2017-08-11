@@ -83,12 +83,19 @@ class Jerakia
                    default: 'json',
                    desc: 'Output format, yaml, json or msgpack'
 
+            option :content_type,
+                   aliases: :c,
+                   type: :string,
+                   default: 'json',
+                   desc: 'Content type, json or msgpack'
+
             def lookup(key)
               client = Jerakia::Client.new({
                 :host  => options[:host],
                 :port  => options[:port],
                 :api   => options[:api],
                 :token => options[:token],
+                :content_type => options[:content_type],
               })
 
               lookup_opts = {
