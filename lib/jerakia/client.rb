@@ -6,6 +6,7 @@ require 'jerakia/client/token'
 require 'uri'
 require 'json'
 require 'net/http'
+require 'msgpack'
 
 class Jerakia
   class Client
@@ -53,6 +54,7 @@ class Jerakia
       :port => 9843,
       :api  => 'v1',
       :proto => 'http',
+      :content_type => 'json',
       }
     end
 
@@ -82,7 +84,11 @@ class Jerakia
 
       case response.code
       when "200"
-        return JSON.parse(response.body)
+        if not @config.key?(:content_type) or @config[:content_type] == 'json'
+          return JSON.parse(response.body)
+        else @config[:content_type] == 'msgpack'
+          return MessagePack.unpack(response.body)
+        end
       when "401"
         raise Jerakia::Client::AuthorizationError, "Request not authorized"
       when "501"
@@ -93,22 +99,39 @@ class Jerakia
       end
     end
 
+    def encode_request(request)
+      if not @config.key?(:content_type) or @config[:content_type] == 'json'
+        request.add_field('Content-Type', 'application/json')
+        if request.key?('body')
+          request.body.to_json
+        end
+      elsif @config[:content_type] == 'msgpack'
+        request.add_field('Content-Type', 'application/x-msgpack')
+        if request.key?('body')
+          request.body.to_msgpack
+        end
+      else
+        raise Jerakia::Client::Error, "Invalid setting \"#{@config[:content_type]}\" for \":content_type\" in config - supported is either json or msgpack."
+        exit(false)
+      end
+      return request
+    end
 
     def get(url_path, params={})
       uri = URI.parse(url_address +  url_path)
       uri.query = URI.encode_www_form(params)
       request = Net::HTTP::Get.new(uri.to_s)
+      request = encode_request(request)
       return http_send(request)
     end
 
     def put(url_path, params)
       uri = URI.parse(url_address + url_path)
       request = Net::HTTP::Put.new(uri.path)
-      request.add_field('Content-Type', 'application/json')
-      request.body = params.to_json
+      request = set_content_type(request)
+      request.body = params
+      request = encode_request(request)
       return http_send(request)
     end
   end
 end
-
-
