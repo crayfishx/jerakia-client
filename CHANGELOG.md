@@ -1,4 +1,11 @@
 
+# 1.0.0
+
+Stable release.
+
+* Feature: Now supports `msgpack` as a data serialization format - msgpack was introduced into Jerakia in version 2.4, although JSON is still the default.
+* This release is stable, that means strict semantic versioning will apply from 1.0 onwards
+
 ### 0.5.3
 
 * Bugfix: previously, nested namespaces were being sent twice in the URL as different fields rather than slash delimited as per the API docs.
